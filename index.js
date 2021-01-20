@@ -72,16 +72,83 @@ const User = sequelize.define('users', {
 });
 
 //feedback model
-
+const Feedback = sequelize.define('feedbacks',{
+  salon_code:{
+    type: Sequelize.STRING,
+  },
+  date:{
+    type: Sequelize.DATE,
+  },
+  recep_friend:{
+    type: Sequelize.STRING,
+  },
+  recep_info:{
+    type: Sequelize.STRING,
+  },
+  recep_bill:{
+    type: Sequelize.STRING,
+  },
+  thera_neat:{
+    type: Sequelize.STRING,
+  },
+  thera_pressure:{
+    type: Sequelize.STRING,
+  },
+  thera_concern:{
+    type: Sequelize.STRING,
+  },
+  thera_refresh:{
+    type: Sequelize.STRING,
+  },
+  ame_treatment:{
+    type: Sequelize.STRING,
+  },
+  ame_towel:{
+    type: Sequelize.STRING,
+  },
+  ame_cool:{
+    type: Sequelize.STRING,
+  },
+  suggestions:{
+    type: Sequelize.STRING,
+  },
+  cust_name:{
+    type: Sequelize.STRING,
+  },
+  cust_contact_no:{
+    type: Sequelize.STRING,
+  },
+},{
+  timestamps: false
+})
 
 // create table with user model
 User.sync()
-  .then(() => console.log('User table created successfully'))
+  .then(() => console.log('working'))
+  .catch(err => console.log('oooh, did you enter wrong database credentials?'));
+
+// create table with feedback model
+Feedback.sync()
+  .then(() => console.log('working'))
   .catch(err => console.log('oooh, did you enter wrong database credentials?'));
 
 // create some helper functions to work on the database
 const createUser = async ({ user_id,user_name, password, salon_code }) => {
   return await User.create({ user_id,user_name, password, salon_code });
+};
+
+const creatfeedback = async ({salon_code, date, 
+  recep_friend,recep_info,recep_bill,
+  thera_neat,thera_pressure,thera_concern,thera_refresh,
+  ame_treatment,ame_towel,ame_cool,
+  suggestions,cust_name,cust_contact_no
+}) => {
+  return await Feedback.create ({salon_code, date, 
+    recep_friend,recep_info,recep_bill,
+    thera_neat,thera_pressure,thera_concern,thera_refresh,
+    ame_treatment,ame_towel,ame_cool,
+    suggestions,cust_name,cust_contact_no
+  });
 };
 
 const getAllUsers = async () => {
@@ -122,7 +189,7 @@ app.post('/login', async function(req, res, next) {
     let user = await getUser({ user_name: user_name });
     if (!user) {
 
-      res.status(401).json({ message: 'No such user found' });
+      res.status(401).json({ staus:'0', msg: 'No such user found' });
     
     }
     var check = (bcrypt.compareSync(password, user.password))
@@ -131,9 +198,9 @@ app.post('/login', async function(req, res, next) {
       // only personalized value that goes into our token
       let payload = { id: user.user_id };
       let token = jwt.sign(payload, jwtOptions.secretOrKey);
-      res.json({ msg: user.salon_code, token: token });
+      res.json({ status:'1', salon: user.salon_code, token: token });
     } else {
-      res.status(401).json({ msg: 'Password is incorrect' });
+      res.status(401).json({ status:'0', msg: 'Password is incorrect' });
     }
   }
 });
@@ -144,9 +211,22 @@ app.get('/protected', passport.authenticate('jwt', { session: false }), function
 });
 
 app.post('/feedback', passport.authenticate('jwt', { session: false }), function(req, res) {
-  
+  const {salon_code, date, 
+    recep_friend,recep_info,recep_bill,
+    thera_neat,thera_pressure,thera_concern,thera_refresh,
+    ame_treatment,ame_towel,ame_cool,
+    suggestions,cust_name,cust_contact_no
+  } = req.body;
+  creatfeedback({salon_code, date, 
+    recep_friend,recep_info,recep_bill,
+    thera_neat,thera_pressure,thera_concern,thera_refresh,
+    ame_treatment,ame_towel,ame_cool,
+    suggestions,cust_name,cust_contact_no
+  }).then(feedback1 =>
+    res.json({ status:'1', msg: 'Thank you for submitting feedback' })
+  ).catch(response=>
+    res.json({ status:'0', msg: 'failed to submit please login again' }));
 });
-
 
 // start app
 app.listen(3000, function() {
