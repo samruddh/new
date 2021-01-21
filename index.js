@@ -40,9 +40,9 @@ const Sequelize = require('sequelize');
 
 // initialze an instance of Sequelize
 const sequelize = new Sequelize({
-  database: 'snip',
-  username: 'root',
-  password: 'test123',
+  database: 'snipdb',
+  username: 'snipdb_usr',
+  password: 'Ldhrs$fd97pr',
   dialect: 'mysql',
 });
 
