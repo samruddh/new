@@ -118,6 +118,9 @@ const Feedback = sequelize.define('feedbacks',{
   cust_contact_no:{
     type: Sequelize.STRING,
   },
+  cust_consent:{
+    type: Sequelize.STRING,
+  },
 },{
   timestamps: false
 })
@@ -141,14 +144,16 @@ const creatfeedback = async ({salon_code, date,
   recep_friend,recep_info,recep_bill,
   thera_neat,thera_pressure,thera_concern,thera_refresh,
   ame_treatment,ame_towel,ame_cool,
-  suggestions,cust_name,cust_contact_no
+  suggestions,cust_name,cust_contact_no,cust_consent
 }) => {
+ 
   return await Feedback.create ({salon_code, date, 
     recep_friend,recep_info,recep_bill,
     thera_neat,thera_pressure,thera_concern,thera_refresh,
     ame_treatment,ame_towel,ame_cool,
-    suggestions,cust_name,cust_contact_no
+    suggestions,cust_name,cust_contact_no,cust_consent
   });
+
 };
 
 const getAllUsers = async () => {
@@ -189,7 +194,7 @@ app.post('/login', async function(req, res, next) {
     let user = await getUser({ user_name: user_name });
     if (!user) {
 
-      res.status(401).json({ staus:'0', msg: 'No such user found' });
+      res.status(401).json({ staus:'0', msg: 'Username or password is incorrect' });
     
     }
     var check = (bcrypt.compareSync(password, user.password))
@@ -200,7 +205,7 @@ app.post('/login', async function(req, res, next) {
       let token = jwt.sign(payload, jwtOptions.secretOrKey);
       res.json({ status:'1', salon: user.salon_code, token: token });
     } else {
-      res.status(401).json({ status:'0', msg: 'Password is incorrect' });
+      res.status(401).json({ status:'0', msg: 'Username or password is incorrect' });
     }
   }
 });
@@ -215,20 +220,30 @@ app.post('/feedback', passport.authenticate('jwt', { session: false }), function
     recep_friend,recep_info,recep_bill,
     thera_neat,thera_pressure,thera_concern,thera_refresh,
     ame_treatment,ame_towel,ame_cool,
-    suggestions,cust_name,cust_contact_no
+    suggestions,cust_name,cust_contact_no,cust_consent
   } = req.body;
-  creatfeedback({salon_code, date, 
-    recep_friend,recep_info,recep_bill,
-    thera_neat,thera_pressure,thera_concern,thera_refresh,
-    ame_treatment,ame_towel,ame_cool,
-    suggestions,cust_name,cust_contact_no
-  }).then(feedback1 =>
-    res.json({ status:'1', msg: 'Thank you for submitting feedback' })
-  ).catch(response=>
-    res.json({ status:'0', msg: 'failed to submit please login again' }));
+
+  console.log(cust_name)
+
+  if((cust_name == null) && (cust_contact_no == null))
+  {
+    res.json('please enter name and contact number')
+  }
+  else
+  {
+    creatfeedback({salon_code, date, 
+      recep_friend,recep_info,recep_bill,
+      thera_neat,thera_pressure,thera_concern,thera_refresh,
+      ame_treatment,ame_towel,ame_cool,
+      suggestions,cust_name,cust_contact_no,cust_consent
+    }).then(feedback1 =>
+        res.json({ status:'1', msg: `Thank you for submitting feedback ${cust_name}`})
+    ).catch(response=>
+        res.json({ status:'0', msg: 'failed to submit please login again' }));
+  }  
 });
 
 // start app
 app.listen(3733, function() {
-  console.log('Express is running on port 3000');
+  console.log('Express is running on port 3733');
 });
