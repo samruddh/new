@@ -240,7 +240,7 @@ app.post('/login', async function(req, res, next) {
 // protected route
 app.get('/protected', passport.authenticate('jwt', { session: false }, function(req, res) {
   res.json('Success! You can now see this without a token.');
-});
+}));
 
 
 
