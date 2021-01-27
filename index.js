@@ -3,7 +3,15 @@ const bodyParser = require('body-parser');
 const jwt = require('jsonwebtoken');
 var bcrypt = require("bcryptjs");
 
-var flash = require('connect-flash');
+const fs = require('fs');
+const https = require('https');
+
+const options = {
+  key: fs.readFileSync('key.pem'),
+  cert: fs.readFileSync('cert.pem')
+};
+
+const server = https.createServer({key: key, cert: cert }, app);
 
 const passport = require('passport');
 const passportJWT = require('passport-jwt');
@@ -44,9 +52,9 @@ const Sequelize = require('sequelize');
 
 // initialze an instance of Sequelize
 const sequelize = new Sequelize({
-  database: 'snip',
-  username: 'root',
-  password: 'test123',
+  database: 'snipdb',
+  username: 'snipdb_usr',
+  password: 'Ldhrs$fd97pr',
   dialect: 'mysql',
 });
 
@@ -272,6 +280,6 @@ app.post('/feedback', passport.authenticate('jwt', { session: false }), function
 });
 
 // start app
-app.listen(3733, function() {
+server.listen(3733, function() {
   console.log('Express is running on port 3733');
 });
