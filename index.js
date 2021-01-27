@@ -6,6 +6,7 @@ var bcrypt = require("bcryptjs");
 const fs = require('fs');
 const https = require('https');
 
+const app = express();
 
 const key = fs.readFileSync('./key.pem');
 const cert = fs.readFileSync('./cert.pem');
@@ -37,7 +38,6 @@ let strategy = new JwtStrategy(jwtOptions, function(jwt_payload, next) {
 // use the strategy
 passport.use(strategy);
 
-const app = express();
 // initialize passport with express
 app.use(passport.initialize());
 
