@@ -3,6 +3,8 @@ const bodyParser = require('body-parser');
 const jwt = require('jsonwebtoken');
 var bcrypt = require("bcryptjs");
 
+var flash = require('connect-flash');
+
 const passport = require('passport');
 const passportJWT = require('passport-jwt');
 
@@ -36,13 +38,15 @@ app.use(bodyParser.json());
 //parse application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: true }));
 
+app.use(flash());
+
 const Sequelize = require('sequelize');
 
 // initialze an instance of Sequelize
 const sequelize = new Sequelize({
-  database: 'snipdb',
-  username: 'snipdb_usr',
-  password: 'Ldhrs$fd97pr',
+  database: 'snip',
+  username: 'root',
+  password: 'test123',
   dialect: 'mysql',
 });
 
@@ -79,47 +83,59 @@ const Feedback = sequelize.define('feedbacks',{
   date:{
     type: Sequelize.DATE,
   },
-  recep_friend:{
+  staff_name:{
     type: Sequelize.STRING,
   },
-  recep_info:{
+  guest_name:{
     type: Sequelize.STRING,
   },
-  recep_bill:{
+  guest_num:{
     type: Sequelize.STRING,
   },
-  thera_neat:{
+  guest_email:{
     type: Sequelize.STRING,
   },
-  thera_pressure:{
+  recep_friendly:{
     type: Sequelize.STRING,
   },
-  thera_concern:{
+  recep_efficient:{
     type: Sequelize.STRING,
   },
-  thera_refresh:{
+  stylist_neat:{
     type: Sequelize.STRING,
   },
-  ame_treatment:{
+  stylist_pleasent:{
+    type: Sequelize.STRING,
+  },
+  stylist_comfort:{
+    type: Sequelize.STRING,
+  },
+  stylist_refreshment:{
+    type: Sequelize.STRING,
+  },
+  stylist_discussed:{
+    type: Sequelize.STRING,
+  },
+  stylist_results:{
+    type: Sequelize.STRING,
+  },
+  ame_cleanliness:{
     type: Sequelize.STRING,
   },
   ame_towel:{
     type: Sequelize.STRING,
   },
-  ame_cool:{
+  ame_cooling:{
     type: Sequelize.STRING,
   },
-  suggestions:{
+  ame_music:{
     type: Sequelize.STRING,
   },
-  cust_name:{
+  comments:{
     type: Sequelize.STRING,
   },
-  cust_contact_no:{
-    type: Sequelize.STRING,
-  },
-  cust_consent:{
-    type: Sequelize.STRING,
+  dob:{
+    type: Sequelize.DATE,
   },
 },{
   timestamps: false
@@ -141,17 +157,19 @@ const createUser = async ({ user_id,user_name, password, salon_code }) => {
 };
 
 const creatfeedback = async ({salon_code, date, 
-  recep_friend,recep_info,recep_bill,
-  thera_neat,thera_pressure,thera_concern,thera_refresh,
-  ame_treatment,ame_towel,ame_cool,
-  suggestions,cust_name,cust_contact_no,cust_consent
+  staff_name,guest_name,guest_num,guest_email,
+  recep_friendly,recep_efficient,
+  stylist_neat,stylist_pleasent ,stylist_comfort,stylist_refreshment,stylist_discussed,stylist_results,      
+  ame_cleanliness,ame_towel,ame_cooling,ame_music,
+  comments,dob
 }) => {
  
   return await Feedback.create ({salon_code, date, 
-    recep_friend,recep_info,recep_bill,
-    thera_neat,thera_pressure,thera_concern,thera_refresh,
-    ame_treatment,ame_towel,ame_cool,
-    suggestions,cust_name,cust_contact_no,cust_consent
+    staff_name,guest_name,guest_num,guest_email,
+    recep_friendly,recep_efficient,
+    stylist_neat,stylist_pleasent ,stylist_comfort,stylist_refreshment,stylist_discussed,stylist_results,      
+    ame_cleanliness,ame_towel,ame_cooling,ame_music,
+    comments,dob
   });
 
 };
@@ -187,6 +205,9 @@ app.post('/register', function(req, res, next) {
   );
 });
 
+
+app.post('/test', passport.authenticate('local', { successRedirect:'/',failureRedirect: '/test' }));
+
 //login route
 app.post('/login', async function(req, res, next) {
   const { user_name, password } = req.body;
@@ -211,35 +232,42 @@ app.post('/login', async function(req, res, next) {
 });
 
 // protected route
-app.get('/protected', passport.authenticate('jwt', { session: false }), function(req, res) {
+app.get('/protected', passport.authenticate('jwt', { session: false }, { failureFlash: 'Invalid username or password.' }), function(req, res) {
   res.json('Success! You can now see this without a token.');
+});
+
+app.get('/flash', function(req, res){
+  // Set a flash message by passing the key, followed by the value, to req.flash().
+  req.flash('info', 'Flash is back!')
+  res.redirect('/');
 });
 
 app.post('/feedback', passport.authenticate('jwt', { session: false }), function(req, res) {
   const {salon_code, date, 
-    recep_friend,recep_info,recep_bill,
-    thera_neat,thera_pressure,thera_concern,thera_refresh,
-    ame_treatment,ame_towel,ame_cool,
-    suggestions,cust_name,cust_contact_no,cust_consent
+    staff_name,guest_name,guest_num,guest_email,
+    recep_friendly,recep_efficient,
+    stylist_neat,stylist_pleasent ,stylist_comfort,stylist_refreshment,stylist_discussed,stylist_results,      
+    ame_cleanliness,ame_towel,ame_cooling,ame_music,
+    comments,dob
   } = req.body;
 
-  console.log(cust_name)
+  
 
-  if((cust_name == null) && (cust_contact_no == null))
+  if((guest_num == null) && ( guest_email == null))
   {
     res.json('please enter name and contact number')
   }
   else
   {
     creatfeedback({salon_code, date, 
-      recep_friend,recep_info,recep_bill,
-      thera_neat,thera_pressure,thera_concern,thera_refresh,
-      ame_treatment,ame_towel,ame_cool,
-      suggestions,cust_name,cust_contact_no,cust_consent
+      staff_name,guest_name,guest_num,guest_email,
+      recep_friendly,recep_efficient,
+      stylist_neat,stylist_pleasent ,stylist_comfort,stylist_refreshment,stylist_discussed,stylist_results,      
+      ame_cleanliness,ame_towel,ame_cooling,ame_music,
+      comments,dob
     }).then(feedback1 =>
-        res.json({ status:'1', msg: `Thank you for submitting feedback ${cust_name}`})
-    ).catch(response=>
-        res.json({ status:'0', msg: 'failed to submit please login again' }));
+        res.json({ status:'1', msg: `Thank you for submitting feedback ${guest_name}`})
+    )
   }  
 });
 
