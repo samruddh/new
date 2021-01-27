@@ -6,10 +6,10 @@ var bcrypt = require("bcryptjs");
 const fs = require('fs');
 const https = require('https');
 
-const options = {
-  key: fs.readFileSync('key.pem'),
-  cert: fs.readFileSync('cert.pem')
-};
+
+const key = fs.readFileSync('./key.pem');
+const cert = fs.readFileSync('./cert.pem');
+
 
 const server = https.createServer({key: key, cert: cert }, app);
 
