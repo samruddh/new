@@ -46,7 +46,7 @@ app.use(bodyParser.json());
 //parse application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.use(flash());
+
 
 const Sequelize = require('sequelize');
 
@@ -214,8 +214,6 @@ app.post('/register', function(req, res, next) {
 });
 
 
-app.post('/test', passport.authenticate('local', { successRedirect:'/',failureRedirect: '/test' }));
-
 //login route
 app.post('/login', async function(req, res, next) {
   const { user_name, password } = req.body;
@@ -240,15 +238,11 @@ app.post('/login', async function(req, res, next) {
 });
 
 // protected route
-app.get('/protected', passport.authenticate('jwt', { session: false }, { failureFlash: 'Invalid username or password.' }), function(req, res) {
+app.get('/protected', passport.authenticate('jwt', { session: false }, function(req, res) {
   res.json('Success! You can now see this without a token.');
 });
 
-app.get('/flash', function(req, res){
-  // Set a flash message by passing the key, followed by the value, to req.flash().
-  req.flash('info', 'Flash is back!')
-  res.redirect('/');
-});
+
 
 app.post('/feedback', passport.authenticate('jwt', { session: false }), function(req, res) {
   const {salon_code, date, 
