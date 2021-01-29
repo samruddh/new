@@ -2,11 +2,14 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const jwt = require('jsonwebtoken');
 var bcrypt = require("bcryptjs");
+var cors = require('cors');
 
 const fs = require('fs');
 const https = require('https');
 
 const app = express();
+
+app.use(cors());
 
 const key = fs.readFileSync('./key.pem');
 const cert = fs.readFileSync('./cert.pem');
