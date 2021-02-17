@@ -269,6 +269,11 @@ app.post('/feedback', passport.authenticate('jwt', { session: false }), function
   var month = new_date.format('MM');
   var year = new_date.format('YYYY');
   dob = `${day}/${month}/${year}`;
+  if(dob === 'Invalid date/Invalid date/Invalid date')
+{
+    dob='-'
+}
+
 
   if((guest_num == null) && ( guest_email == null))
   {
