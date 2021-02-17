@@ -3,6 +3,7 @@ const bodyParser = require('body-parser');
 const jwt = require('jsonwebtoken');
 var bcrypt = require("bcryptjs");
 var cors = require('cors');
+const moment = require('moment');
 
 const fs = require('fs');
 const https = require('https');
@@ -59,6 +60,12 @@ const sequelize = new Sequelize({
   username: 'snipdb_usr',
   password: 'Ldhrs$fd97pr',
   dialect: 'mysql',
+  //database: 'snip',
+  //username: 'localhost',
+  //password: 'test123',
+  //dialect: 'mysql',
+
+
 });
 
 // check the databse connection
@@ -92,7 +99,7 @@ const Feedback = sequelize.define('feedbacks',{
     type: Sequelize.STRING,
   },
   date:{
-    type: Sequelize.DATE,
+    type: Sequelize.DATEONLY,
   },
   staff_name:{
     type: Sequelize.STRING,
@@ -146,7 +153,7 @@ const Feedback = sequelize.define('feedbacks',{
     type: Sequelize.STRING,
   },
   dob:{
-    type: Sequelize.DATEONLY,
+    type: Sequelize.STRING,
   },
 },{
   timestamps: false
@@ -248,7 +255,7 @@ app.get('/protected', passport.authenticate('jwt', { session: false }, function(
 
 
 app.post('/feedback', passport.authenticate('jwt', { session: false }), function(req, res) {
-  const {salon_code, date, 
+  var {salon_code, date, 
     staff_name,guest_name,guest_num,guest_email,
     recep_friendly,recep_efficient,
     stylist_neat,stylist_pleasent ,stylist_comfort,stylist_refreshment,stylist_discussed,stylist_results,      
@@ -256,7 +263,12 @@ app.post('/feedback', passport.authenticate('jwt', { session: false }), function
     comments,dob
   } = req.body;
 
-  
+  dob = dob.slice(0, 10);
+  var new_date = moment(dob, "YYYY/MM/DD").add('days', 1);
+  var day = new_date.format('DD');
+  var month = new_date.format('MM');
+  var year = new_date.format('YYYY');
+  dob = `${day}/${month}/${year}`;
 
   if((guest_num == null) && ( guest_email == null))
   {
